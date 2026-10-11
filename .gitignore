@@ -53,3 +53,9 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# OsmiumOS app build output
+build/
+dist/
+*.BIN
+*.img
