@@ -56,13 +56,26 @@ Everything here is just the kernel's documented module ABI (see the main repo's
 
 | Command | What it is |
 |---------|------------|
-| `piano` | 17-key piano with an animated sine-wave display |
+| `piano` | 17-key piano with an animated sine-wave display, plus a CP437 step sequencer on a second tab |
 | `donut` | rotating 3D ASCII donut (a `donut.c` port) |
 | `sort`  | sorting-algorithm visualizer |
 | `fractal` | Mandelbrot / Julia set renderer |
 | `cowsay` | the classic talking cow |
 | `paint` | ASCII paint program (saves to disk) |
-| *(sequencer)* | a second tab inside `piano` (step sequencer) |
+
+## Controls
+
+- **piano**: play with `A W S E D F T G Y H U J K O L P ;`, `TAB` switches to the
+  sequencer, `ESC` quits. In the sequencer, arrows move the cursor, `space`
+  toggles a note, `p` plays, `l` toggles looping, `c` clears, `[` `]` set the
+  tempo, and `s` / `o` save and load a pattern.
+- **donut**, **fractal**: `ESC` quits. Fractal also accepts arrows to pan,
+  `+`/`-` to zoom, `j` for Julia mode and `1`-`4` for Julia presets.
+- **sort**: `1`-`9` pick an algorithm, `space` runs it, `s` shuffles, `m`
+  toggles sound, `q` quits.
+- **cowsay**: `cowsay <words>`; with no arguments it says its default line.
+- **paint**: arrows move, typing paints, `Ctrl+F`/`Ctrl+B` pick colours,
+  `Ctrl+N` clears, `Ctrl+S`/`Ctrl+O` save/open, `Ctrl+Q` quits.
 
 ## Adding an app
 
