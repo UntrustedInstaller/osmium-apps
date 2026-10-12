@@ -11,6 +11,7 @@ __asm__(".code16gcc\n");
 #include "api.h"
 #include "ogfx.h"
 #include "osnd.h"
+#include "otheme.h"
 
 #define N    76
 #define X0   2
@@ -303,7 +304,7 @@ static void shuffle(void) {
 }
 
 void module_main(void) {
-    bg = (uint8_t)(get_cur_col() & 0xF0);
+    bg = o_theme_bg();
     seed_rng();
     clear_screen();
     shuffle();

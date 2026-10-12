@@ -41,7 +41,7 @@ static int ramp_index(char ch) {
 
 void module_main(void) {
     double A = 0, B = 0;
-    uint8_t bg = (uint8_t)(get_cur_col() & 0xF0);
+    uint8_t bg = 0x00;              /* screensaver: always black */
 
     clear_screen();
 

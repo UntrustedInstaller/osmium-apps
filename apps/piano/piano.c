@@ -20,6 +20,7 @@ __asm__(".code16gcc\n");
 #include "ogfx.h"
 #include "omath.h"
 #include "osnd.h"
+#include "otheme.h"
 
 #define NKEYS     17
 #define CELL      4
@@ -503,7 +504,7 @@ static int seq_run(void) {
 /* ====================================================================== */
 
 void module_main(void) {
-    base_attr = get_cur_col();
+    base_attr = o_theme_attr();
     hi_attr = (uint8_t)((base_attr << 4) | (base_attr >> 4));
     bgonly = (uint8_t)(base_attr & 0xF0);
 

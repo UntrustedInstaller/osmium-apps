@@ -77,6 +77,10 @@ Everything here is just the kernel's documented module ABI (see the main repo's
 - **paint**: arrows move, typing paints, `Ctrl+F`/`Ctrl+B` pick colours,
   `Ctrl+N` clears, `Ctrl+S`/`Ctrl+O` save/open, `Ctrl+Q` quits.
 
+Apps match the theme saved in `CONFIG.BIN` (via `lib/otheme.h`), so they follow
+the shell's selected colours. `donut`, `fractal` and `paint` deliberately force
+a black background as screensaver/canvas apps.
+
 ## Adding an app
 
 1. `mkdir apps/mytool && $EDITOR apps/mytool/mytool.c`

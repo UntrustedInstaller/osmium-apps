@@ -71,6 +71,8 @@ static void print_i16(int v) {
 }
 
 static void status(void) {
+    uint8_t saved = get_cur_col();
+    set_cur_col(0x07);              /* grey text on the forced black bar */
     o_fill(0, 24, 80, 1, ' ', bg);
     gotoxy(0, 24);
     print_str(julia ? "Julia " : "Mandel");
@@ -81,6 +83,7 @@ static void status(void) {
     print_str("  span ");
     print_i16((int)(sx * 1000));
     print_str("  +/- zoom  arrows pan  j julia  r reset  q quit");
+    set_cur_col(saved);
 }
 
 static void reset_view(void) {
@@ -95,7 +98,7 @@ static void draw_progressive(void) {
 }
 
 void module_main(void) {
-    bg = (uint8_t)(get_cur_col() & 0xF0);
+    bg = 0x00;                      /* screensaver: always black */
     julia = 0;
     jcr = -0.8; jci = 0.156;
     reset_view();
