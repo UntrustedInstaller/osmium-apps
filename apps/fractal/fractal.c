@@ -21,10 +21,7 @@ static uint8_t julia;
 static double jcr, jci;
 static uint8_t bg;
 
-static const uint8_t pal[15] = {
-    9, 11, 14, 10, 12, 13, 15, 7, 3, 2, 6, 4, 5, 8, 1
-};
-static const char framp[] = ".:-=+*#%@";
+/* Colours come from the shared hue ramp (o_hue) in ogfx.h. */
 
 /* Returns iteration count, or MAXIT if the point stayed bounded. */
 static int escape(double x0, double y0, int maxit) {
@@ -52,11 +49,16 @@ static void render(int maxit) {
 
             char ch;
             uint8_t attr;
-            if (it >= maxit) { ch = ' '; attr = bg; }
-            else {
-                int idx = (it * 8) / maxit;
-                ch = framp[idx];
-                attr = (uint8_t)(bg | pal[it % 15]);
+            if (it >= maxit) {
+                /* inside the set: solid black so it reads as a silhouette
+                 * against the coloured exterior, whatever the shell theme */
+                ch = ' ';
+                attr = 0x00;
+            } else {
+                /* outside: solid cells coloured by escape time, so the
+                 * bands walk the colour ramp instead of a random palette */
+                ch = (char)O_BLOCK_FULL;
+                attr = (uint8_t)(o_hue[it % 15]);
             }
             o_poke((uint8_t)c, (uint8_t)r, ch, attr);
         }
@@ -111,8 +113,8 @@ void module_main(void) {
 
         if (ch == 0x1B || ch == 'q' || ch == 'Q') break;
 
-        if (sc == 0x48)      cy -= stepy;      /* up    */
-        else if (sc == 0x50) cy += stepy;      /* down  */
+        if (sc == 0x48)      cy += stepy;      /* up    */
+        else if (sc == 0x50) cy -= stepy;      /* down  */
         else if (sc == 0x4B) cx -= stepx;      /* left  */
         else if (sc == 0x4D) cx += stepx;      /* right */
         else if (ch == '+' || ch == '=') { sx *= 0.8; sy *= 0.8; }

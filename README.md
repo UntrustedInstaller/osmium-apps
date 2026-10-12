@@ -72,7 +72,7 @@ Everything here is just the kernel's documented module ABI (see the main repo's
 - **donut**, **fractal**: `ESC` quits. Fractal also accepts arrows to pan,
   `+`/`-` to zoom, `j` for Julia mode and `1`-`4` for Julia presets.
 - **sort**: `1`-`9` pick an algorithm, `space` runs it, `s` shuffles, `m`
-  toggles sound, `q` quits.
+  toggles sound, any key stops a run, `q` quits.
 - **cowsay**: `cowsay <words>`; with no arguments it says its default line.
 - **paint**: arrows move, typing paints, `Ctrl+F`/`Ctrl+B` pick colours,
   `Ctrl+N` clears, `Ctrl+S`/`Ctrl+O` save/open, `Ctrl+Q` quits.

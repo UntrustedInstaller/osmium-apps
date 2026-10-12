@@ -141,13 +141,24 @@ static uint8_t wave_cycles(uint16_t freq) {
 static void draw_wave(uint16_t freq, uint8_t phase) {
     uint8_t cycles = wave_cycles(freq);
     uint8_t x;
+    int last = WAVE_MID;
 
     o_fill(WAVE_COL, WAVE_TOP, WAVE_W, WAVE_H, ' ', base_attr);
 
     for (x = 0; x < WAVE_W; x++) {
         int s = o_sin((uint8_t)(x * cycles + phase));
         int y = WAVE_MID - (s * WAVE_AMP) / 127;
-        o_poke((uint8_t)(WAVE_COL + x), (uint8_t)y, O_BLOCK_MED, base_attr);
+        int lo = y < last ? y : last;
+        int hi = y < last ? last : y;
+        int yy;
+
+        /* Steep parts of a high note would leave gaps between columns, so
+         * connect the previous sample to this one with a vertical run. */
+        for (yy = lo; yy <= hi; yy++) {
+            if (yy < WAVE_TOP || yy > WAVE_BOT) continue;
+            o_poke((uint8_t)(WAVE_COL + x), (uint8_t)yy, O_BLOCK_MED, base_attr);
+        }
+        last = y;
     }
 }
 

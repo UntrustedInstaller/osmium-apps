@@ -3,7 +3,7 @@
 // 76 bars race through nine classic sorts, with an optional beep per write.
 //
 //   1-9  pick algorithm      space  run        s  shuffle
-//   m    toggle sound        q/ESC  quit
+//   m    toggle sound        any key  stop     q/ESC  quit
 //
 // Build: ./build.sh -> dist/SORT.BIN
 
@@ -34,6 +34,7 @@ static const uint8_t palette[15] = {
 };
 
 static uint8_t bg;
+static uint8_t aborting;
 
 static uint16_t rng(void) {
     rng_state ^= rng_state << 7;
@@ -82,10 +83,26 @@ static void hud(void) {
 static void controls(void) {
     o_fill(0, 24, 80, 1, ' ', bg);
     gotoxy(1, 24);
-    print_str("1-9 algorithm   space run   s shuffle   m sound   q quit");
+    print_str("1-9 algorithm   space run   s shuffle   m sound   any key stops   q quit");
+}
+
+static int kbhit(void) {
+    uint8_t v;
+    __asm__ __volatile__ ("movb $0x01, %%ah\n\tint $0x16\n\tsetnz %0" : "=q"(v) : : "eax");
+    return v;
+}
+
+/* A run can feel like a hang on real hardware, so let any keypress stop it.
+ * Checked on every compare and every write. */
+static void poll_abort(void) {
+    if (aborting) return;
+    if (kbhit()) { (void)get_key(); aborting = 1; }
 }
 
 static void set_val(uint8_t i, uint8_t v) {
+    if (aborting) return;
+    poll_abort();
+    if (aborting) return;
     val[i] = v;
     draw_col(i);
     n_set++;
@@ -101,6 +118,7 @@ static void set_val(uint8_t i, uint8_t v) {
 
 static uint8_t greater(uint8_t a, uint8_t b) {
     n_cmp++;
+    poll_abort();
     return a > b;
 }
 
@@ -113,16 +131,25 @@ static void swap_ij(uint8_t i, uint8_t j) {
 /* ---- the algorithms ------------------------------------------------ */
 
 static void s_bubble(void) {
-    for (uint8_t i = 0; i < N - 1; i++)
-        for (uint8_t j = 0; j < N - 1 - i; j++)
+    for (uint8_t i = 0; i < N - 1; i++) {
+        if (aborting) return;
+        for (uint8_t j = 0; j < N - 1 - i; j++) {
+            if (aborting) return;
             if (greater(val[j], val[j + 1])) swap_ij((uint8_t)j, (uint8_t)(j + 1));
+        }
+    }
 }
 
 static void s_insertion(void) {
     for (uint8_t i = 1; i < N; i++) {
         uint8_t key = val[i];
         int j = i - 1;
-        while (j >= 0 && greater(val[j], key)) { set_val((uint8_t)j + 1, val[j]); j--; }
+        if (aborting) return;
+        while (j >= 0 && greater(val[j], key)) {
+            set_val((uint8_t)j + 1, val[j]);
+            j--;
+            if (aborting) return;
+        }
         if ((uint8_t)(j + 1) != i) set_val((uint8_t)(j + 1), key);
     }
 }
@@ -130,8 +157,11 @@ static void s_insertion(void) {
 static void s_selection(void) {
     for (uint8_t i = 0; i < N - 1; i++) {
         uint8_t m = i;
-        for (uint8_t j = i + 1; j < N; j++)
+        if (aborting) return;
+        for (uint8_t j = i + 1; j < N; j++) {
+            if (aborting) return;
             if (greater(val[m], val[j])) m = j;
+        }
         if (m != i) swap_ij(i, m);
     }
 }
@@ -141,7 +171,12 @@ static void s_shell(void) {
         for (int i = gap; i < N; i++) {
             uint8_t tmp = val[i];
             int j = i;
-            while (j >= gap && greater(val[j - gap], tmp)) { set_val((uint8_t)j, val[j - gap]); j -= gap; }
+            if (aborting) return;
+            while (j >= gap && greater(val[j - gap], tmp)) {
+                set_val((uint8_t)j, val[j - gap]);
+                j -= gap;
+                if (aborting) return;
+            }
             if (j != i) set_val((uint8_t)j, tmp);
         }
 }
@@ -149,11 +184,16 @@ static void s_shell(void) {
 static void s_cocktail(void) {
     int lo = 0, hi = N - 1;
     while (lo < hi) {
-        for (int j = lo; j < hi; j++)
+        if (aborting) return;
+        for (int j = lo; j < hi; j++) {
+            if (aborting) return;
             if (greater(val[j], val[j + 1])) swap_ij((uint8_t)j, (uint8_t)(j + 1));
+        }
         hi--;
-        for (int j = hi; j > lo; j--)
+        for (int j = hi; j > lo; j--) {
+            if (aborting) return;
             if (greater(val[j - 1], val[j])) swap_ij((uint8_t)(j - 1), (uint8_t)j);
+        }
         lo++;
     }
 }
@@ -161,6 +201,7 @@ static void s_cocktail(void) {
 static void s_gnome(void) {
     int i = 0;
     while (i < N) {
+        if (aborting) return;
         if (i == 0 || !greater(val[i - 1], val[i])) i++;
         else { swap_ij((uint8_t)(i - 1), (uint8_t)i); i--; }
     }
@@ -172,14 +213,17 @@ static void s_quick(void) {
     slo[0] = 0; shi[0] = N - 1; sp = 1;
 
     while (sp > 0) {
+        if (aborting) return;
         sp--;
         int lo = slo[sp], hi = shi[sp];
         if (lo >= hi) continue;
 
         uint8_t pivot = val[hi];
         int i = lo;
-        for (int j = lo; j < hi; j++)
+        for (int j = lo; j < hi; j++) {
+            if (aborting) return;
             if (!greater(val[j], pivot)) { swap_ij((uint8_t)i, (uint8_t)j); i++; }
+        }
         swap_ij((uint8_t)i, (uint8_t)hi);
 
         if (i - 1 > lo && sp < 23) { slo[sp] = lo; shi[sp] = i - 1; sp++; }
@@ -194,7 +238,9 @@ static void s_merge(void) {
             int mid = lo + width; if (mid > N) mid = N;
             int hi = lo + 2 * width; if (hi > N) hi = N;
             int i = lo, j = mid, t = 0;
+            if (aborting) return;
             while (i < mid && j < hi) {
+                if (aborting) return;
                 if (!greater(val[j], val[i])) tmp[t++] = val[i++];
                 else tmp[t++] = val[j++];
             }
@@ -208,6 +254,7 @@ static void s_merge(void) {
 static void sift(int root, int end) {
     while (root * 2 + 1 <= end) {
         int child = root * 2 + 1;
+        if (aborting) return;
         if (child + 1 <= end && greater(val[child], val[child + 1])) child++;
         if (greater(val[root], val[child])) { swap_ij((uint8_t)root, (uint8_t)child); root = child; }
         else return;
@@ -215,11 +262,19 @@ static void sift(int root, int end) {
 }
 
 static void s_heap(void) {
-    for (int start = (N - 2) / 2; start >= 0; start--) sift(start, N - 1);
-    for (int end = N - 1; end > 0; end--) { swap_ij(0, (uint8_t)end); sift(0, end - 1); }
+    for (int start = (N - 2) / 2; start >= 0; start--) {
+        if (aborting) return;
+        sift(start, N - 1);
+    }
+    for (int end = N - 1; end > 0; end--) {
+        if (aborting) return;
+        swap_ij(0, (uint8_t)end);
+        sift(0, end - 1);
+    }
 }
 
 static void run_algo(void) {
+    aborting = 0;
     switch (algo) {
         case 0: s_bubble();    break;
         case 1: s_insertion(); break;
@@ -231,7 +286,9 @@ static void run_algo(void) {
         case 7: s_merge();     break;
         default: s_heap();     break;
     }
-    play_note(660, 60); play_note(880, 60); play_note(1320, 90);
+    if (!aborting) {
+        play_note(660, 60); play_note(880, 60); play_note(1320, 90);
+    }
 }
 
 /* ---- setup --------------------------------------------------------- */

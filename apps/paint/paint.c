@@ -56,12 +56,17 @@ static void blit_cursor(void) {
 }
 
 static void toolbar(void) {
-    const char* s = "arrows move  type paint  ^F fg  ^B bg  ^N new  ^S save  ^O open  ^Q quit";
-    uint8_t c = 0;
-    while (s[c]) { o_poke(c, 24, s[c], 0x70); c++; }
-    while (c < 80) { o_poke(c, 24, ' ', 0x70); c++; }
-    o_poke(76, 24, 0xDB, (uint8_t)((bg << 4) | fg));
-    o_poke(77, 24, 0xDB, (uint8_t)((bg << 4) | fg));
+    const char* s = "arrows move  type  CTRL+F/B colour  CTRL+N new  CTRL+S/O  CTRL+Q";
+    for (uint8_t i = 0; i < 80; i++) o_poke(i, 24, ' ', 0x70);
+    o_print_at(0, 24, s, 0x70);
+    /* foreground swatch */
+    o_print_at(65, 24, "FG", 0x70);
+    o_poke(68, 24, O_BLOCK_FULL, (uint8_t)((bg << 4) | fg));
+    o_poke(69, 24, O_BLOCK_FULL, (uint8_t)((bg << 4) | fg));
+    /* background swatch */
+    o_print_at(71, 24, "BG", 0x70);
+    o_poke(74, 24, ' ', (uint8_t)((bg << 4) | 7));
+    o_poke(75, 24, ' ', (uint8_t)((bg << 4) | 7));
 }
 
 static void message(const char* s) {

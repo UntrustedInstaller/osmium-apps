@@ -82,7 +82,7 @@ void module_main(void) {
                 char ch = b[r * W + c2];
                 uint8_t attr = ch == ' '
                     ? bg
-                    : (uint8_t)(bg | (uint8_t)(1 + ramp_index(ch) % 14));
+                    : (uint8_t)(bg | o_hue[ramp_index(ch) % 15]);
                 o_poke((uint8_t)c2, (uint8_t)r, ch, attr);
             }
 

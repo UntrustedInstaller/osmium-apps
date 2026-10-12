@@ -18,6 +18,13 @@
 #define O_RAMP " .:-=+*#%@"
 #define O_RAMP_LEN 10
 
+/* 15-step hue ramp: blue -> cyan -> green -> yellow -> red -> magenta -> grey.
+ * Meant for escape-time and shade colouring, so it reads as a smooth walk
+ * around the colour wheel rather than a random palette. */
+static const uint8_t o_hue[15] = {
+    1, 9, 11, 3, 10, 2, 14, 6, 12, 4, 13, 5, 15, 7, 8
+};
+
 /* Write one cell straight into text-mode VGA at 0xB800:offset.
  * Assumes the default 80x25 alphanumeric mode. */
 static inline void o_poke(uint8_t col, uint8_t row, char c, uint8_t attr) {
