@@ -59,3 +59,6 @@ build/
 dist/
 *.BIN
 *.img
+
+# Local roadmap / scratch notes (kept out of the repo)
+TODO.md
