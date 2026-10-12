@@ -26,17 +26,15 @@ static float z[W * H];
 
 static const char ramp[] = ".,-~:;=!*#$@";
 
+/* Bright white on black: monochrome donut. The ASCII ramp above still gives
+ * luminance shading within the single foreground colour. */
+#define DONUT_FG 0x0F
+
 static int kbhit(void) {
     uint8_t v;
     __asm__ __volatile__("movb $0x01, %%ah\n\tint $0x16\n\tsetnz %0"
                          : "=q"(v) : : "eax");
     return v;
-}
-
-static int ramp_index(char ch) {
-    for (int i = 0; i < 12; i++)
-        if (ramp[i] == ch) return i;
-    return 0;
 }
 
 void module_main(void) {
@@ -88,7 +86,7 @@ void module_main(void) {
                 char ch = b[r * W + c2];
                 uint8_t attr = ch == ' '
                     ? bg
-                    : (uint8_t)(bg | o_hue[ramp_index(ch) % 15]);
+                    : (uint8_t)(bg | DONUT_FG);   /* monochrome */
                 o_poke((uint8_t)c2, (uint8_t)r, ch, attr);
             }
 
