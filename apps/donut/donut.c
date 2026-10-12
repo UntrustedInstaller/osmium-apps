@@ -44,6 +44,9 @@ void module_main(void) {
     uint8_t bg = 0x00;              /* screensaver: always black */
 
     clear_screen();
+    /* The torus only fills rows 0..H-1; black out the rest so no shell
+     * theme background shows through. */
+    o_fill(0, 0, O_COLS, O_ROWS, ' ', bg);
 
     for (;;) {
         o_memset(b, ' ', sizeof(b));
