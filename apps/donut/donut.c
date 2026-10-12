@@ -26,9 +26,15 @@ static float z[W * H];
 
 static const char ramp[] = ".,-~:;=!*#$@";
 
-/* Bright white on black: monochrome donut. The ASCII ramp above still gives
- * luminance shading within the single foreground colour. */
-#define DONUT_FG 0x0F
+/* Achromatic grey-scale: the 12 ASCII luminance levels collapse onto three
+ * monochrome shades - dark grey (sparse), grey (mid), bright white (dense). */
+static const uint8_t ramp_greys[3] = {0x08, 0x07, 0x0F};
+
+static int ramp_index(char ch) {
+    for (int i = 0; i < 12; i++)
+        if (ramp[i] == ch) return i;
+    return 0;
+}
 
 static int kbhit(void) {
     uint8_t v;
@@ -86,7 +92,7 @@ void module_main(void) {
                 char ch = b[r * W + c2];
                 uint8_t attr = ch == ' '
                     ? bg
-                    : (uint8_t)(bg | DONUT_FG);   /* monochrome */
+                    : (uint8_t)(bg | ramp_greys[ramp_index(ch) / 4]);  /* grey-scale */
                 o_poke((uint8_t)c2, (uint8_t)r, ch, attr);
             }
 

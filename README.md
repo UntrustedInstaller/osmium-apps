@@ -69,7 +69,7 @@ Everything here is just the kernel's documented module ABI (see the main repo's
 | Command | What it is |
 |---------|------------|
 | `piano` | 17-key piano with an animated sine-wave display, plus a CP437 step sequencer on a second tab |
-| `donut` | rotating 3D ASCII donut (monochrome `donut.c` port) |
+| `donut` | rotating 3D ASCII donut (grey-scale `donut.c` port) |
 | `matrix` | falling-glyph rain screensaver (`cmatrix`-style) |
 | `stars` | 3D starfield / warp-tunnel screensaver |
 | `fire` | flickering ASCII flame (`aafire`-style) |
