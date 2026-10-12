@@ -3,14 +3,14 @@
 ## Planned apps
 
 ### Screensavers (classic ASCII / terminal demos)
-- [ ] `MATRIX.BIN` — falling green katakana rain (`cmatrix`-style) on a forced black background
+- [x] `MATRIX.BIN` — falling-glyph rain (`cmatrix`-style), black background
+- [x] `STARS.BIN`  — 3D starfield / warp tunnel
+- [x] `FIRE.BIN`   — `aafire`-style flickering flame
 - [ ] `PIPES.BIN`  — the Windows "3D Pipes" screensaver in ASCII: pipes grow, turn, and colour-cycle
-- [ ] `STARS.BIN`  — starfield / warp tunnel
 - [ ] `AQUA.BIN`   — asciiquarium-style fish tank (may be tight against the 22-sector cap)
-- [ ] `FIRE.BIN`   — `aafire`-style flickering flame
 
-`DONUT.BIN` already covers the classic donut; these are the other demos usually
-shipped alongside it. Matrix and Pipes are the priority pair.
+`DONUT.BIN` was the original. Matrix, Stars and Fire are done; Pipes and Aqua
+remain.
 
 ## Theme / colour handling
 

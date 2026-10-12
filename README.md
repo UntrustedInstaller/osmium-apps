@@ -12,7 +12,7 @@ in and out freely.
 
 ```
 sdk/      vendored build contract (api.h, module_entry.asm, module.ld)
-lib/      shared inline helpers (VGA pokes, sine table, tone I/O, strings)
+lib/      shared inline helpers (VGA pokes, theme, RNG, tone I/O, strings)
 apps/     one directory per app:  apps/<name>/<name>.c  ->  dist/<NAME>.BIN
 build.sh  builds every app in one go
 dist/     build output (gitignored)
@@ -45,10 +45,11 @@ Everything here is just the kernel's documented module ABI (see the main repo's
   `MODULE_ARGS` (`0x2000:0xFC00`). Each app parses its own switches.
 - **Size:** 22 sectors / **11,264 bytes** max. `build.sh` refuses to build
   anything larger, because the loader truncates silently.
-- **No libc, no libgcc:** `ld` is invoked directly, so 32-bit division/multiply
-  helpers are unavailable. `int` is 16-bit. `lib/osnd.h` shows the usual escape
-  hatch (a 16-bit `div` in inline asm). Use `long` (32-bit) for products of two
-  16-bit values, and avoid `long * long`.
+- **No libc, no libgcc:** `ld` is invoked directly, so any libgcc helper is
+  unavailable. `int` and `long` are both 32-bit under `-m16`, and 32-bit `idiv`
+  is a native instruction, but avoid 64-bit (`long long`) math. `lib/osnd.h`
+  shows the usual escape hatch (a 16-bit `div` in inline asm) when a specific
+  width matters.
 - **No optimization** is used, matching the kernel's flags; keep helper
   functions `static inline` so unused ones cost nothing.
 
@@ -58,6 +59,9 @@ Everything here is just the kernel's documented module ABI (see the main repo's
 |---------|------------|
 | `piano` | 17-key piano with an animated sine-wave display, plus a CP437 step sequencer on a second tab |
 | `donut` | rotating 3D ASCII donut (a `donut.c` port) |
+| `matrix` | falling-glyph rain screensaver (`cmatrix`-style) |
+| `stars` | 3D starfield / warp-tunnel screensaver |
+| `fire` | flickering ASCII flame (`aafire`-style) |
 | `sort`  | sorting-algorithm visualizer |
 | `fractal` | Mandelbrot / Julia set renderer |
 | `cowsay` | the classic talking cow |
@@ -71,6 +75,7 @@ Everything here is just the kernel's documented module ABI (see the main repo's
   tempo, and `s` / `o` save and load a pattern.
 - **donut**, **fractal**: `ESC` quits. Fractal also accepts arrows to pan,
   `+`/`-` to zoom, `j` for Julia mode and `1`-`4` for Julia presets.
+- **matrix**, **stars**, **fire**: full-screen screensavers; `ESC` or `q` quits.
 - **sort**: `1`-`9` pick an algorithm, `space` runs it, `s` shuffles, `m`
   toggles sound, any key stops a run, `q` quits.
 - **cowsay**: `cowsay <words>`; with no arguments it says its default line.
@@ -78,8 +83,8 @@ Everything here is just the kernel's documented module ABI (see the main repo's
   `Ctrl+N` clears, `Ctrl+S`/`Ctrl+O` save/open, `Ctrl+Q` quits.
 
 Apps match the theme saved in `CONFIG.BIN` (via `lib/otheme.h`), so they follow
-the shell's selected colours. `donut`, `fractal` and `paint` deliberately force
-a black background as screensaver/canvas apps.
+the shell's selected colours. `donut`, `fractal`, `paint` and the screensavers
+(`matrix`, `stars`, `fire`) deliberately force a black background.
 
 ## Adding an app
 
