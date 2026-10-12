@@ -31,6 +31,18 @@ mcopy -i /path/to/os.img dist/PIANO.BIN ::PIANO.BIN
 Boot the image and type the command name (`piano`, `donut`, ...). Filenames are
 8.3 and the filename *is* the command, so keep app names ≤ 8 characters.
 
+## Vendored SDK
+
+`sdk/` is a byte-for-byte copy of the core repo's build contract
+(`src/app/api.h`, `src/module_entry.asm`, `src/module.ld`). Refresh it after the
+kernel's module ABI changes:
+
+```bash
+./sync-sdk.sh                        # fetch the latest from OsmiumOS main
+OSMIUM_REF=v1.0.0 ./sync-sdk.sh      # ...or pin a tag/branch
+OSMIUM_DIR=../osmium ./sync-sdk.sh   # ...or from a local checkout
+```
+
 ## The module contract
 
 Everything here is just the kernel's documented module ABI (see the main repo's
