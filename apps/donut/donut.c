@@ -1,7 +1,7 @@
 // DONUT - rotating 3D ASCII torus, after Andy Sloane's donut.c.
 //
 // The original uses libm sin/cos; here they come straight from the x87 FPU
-// (fsin/fcos) so the module links with no libc. ESC quits.
+// (fsin/fcos) so the module links with no libc. ESC or q quits.
 //
 // Build: ./build.sh -> dist/DONUT.BIN
 
@@ -48,6 +48,9 @@ void module_main(void) {
      * theme background shows through. */
     o_fill(0, 0, O_COLS, O_ROWS, ' ', bg);
 
+    /* Bottom hint bar (rows H..23 are never redrawn by the torus). */
+    o_print_at(0, 24, "ESC / q quit", 0x07);
+
     for (;;) {
         o_memset(b, ' ', sizeof(b));
         o_memset(z, 0, sizeof(z));
@@ -92,7 +95,11 @@ void module_main(void) {
         A += 0.04;
         B += 0.02;
 
-        if (kbhit() && get_key() == 0x011B) break;   /* ESC */
+        if (kbhit()) {
+            uint16_t k = get_key();
+            uint8_t ch = (uint8_t)(k & 0xFF);
+            if (ch == 0x1B || ch == 'q' || ch == 'Q') break;   /* ESC / q */
+        }
 
         o_delay_ms(20);
     }

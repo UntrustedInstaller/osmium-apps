@@ -73,8 +73,9 @@ Everything here is just the kernel's documented module ABI (see the main repo's
   sequencer, `ESC` quits. In the sequencer, arrows move the cursor, `space`
   toggles a note, `p` plays, `l` toggles looping, `c` clears, `[` `]` set the
   tempo, and `s` / `o` save and load a pattern.
-- **donut**, **fractal**: `ESC` quits. Fractal also accepts arrows to pan,
-  `+`/`-` to zoom, `j` for Julia mode and `1`-`4` for Julia presets.
+- **donut**, **fractal**: `ESC` or `q` quits. Fractal also accepts arrows to
+  pan, `+`/`-` to zoom, `j` for Julia mode and `1`-`4` for Julia presets.
+  Both show a one-line hint bar along the bottom row.
 - **matrix**, **stars**, **fire**: full-screen screensavers; `ESC` or `q` quits.
 - **sort**: `1`-`9` pick an algorithm, `space` runs it, `s` shuffles, `m`
   toggles sound, any key stops a run, `q` quits.

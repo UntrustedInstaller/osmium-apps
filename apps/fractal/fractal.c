@@ -19,7 +19,6 @@ __asm__(".code16gcc\n");
 static double cx, cy, sx, sy;
 static uint8_t julia;
 static double jcr, jci;
-static uint8_t bg;
 
 /* Colours come from the shared hue ramp (o_hue) in ogfx.h. */
 
@@ -65,25 +64,48 @@ static void render(int maxit) {
     }
 }
 
-static void print_i16(int v) {
-    if (v < 0) { print_char('-'); v = -v; }
-    print_int((uint16_t)v);
+static char* put_str(char* p, const char* s) {
+    while (*s) *p++ = *s++;
+    return p;
 }
 
+static char* put_int(char* p, int v) {
+    char tmp[12];
+    int n = 0;
+    if (v < 0) { *p++ = '-'; v = -v; }
+    if (v == 0) tmp[n++] = '0';
+    while (v > 0) { tmp[n++] = (char)('0' + v % 10); v /= 10; }
+    while (n > 0) *p++ = tmp[--n];
+    return p;
+}
+
+static int clamp6(double d) {
+    int v = (int)d;
+    if (v > 999999)  return 999999;
+    if (v < -999999) return -999999;
+    return v;
+}
+
+/* Bottom hint bar, written straight into the VGA text buffer. Going through
+ * the kernel's print path here would wrap/scroll on an exactly-80-column line
+ * and shove the legend up off the bottom row. */
 static void status(void) {
-    uint8_t saved = get_cur_col();
-    set_cur_col(0x07);              /* grey text on the forced black bar */
-    o_fill(0, 24, 80, 1, ' ', bg);
-    gotoxy(0, 24);
-    print_str(julia ? "Julia " : "Mandel");
-    print_str("  center ");
-    print_i16((int)(cx * 1000));
-    print_str(",");
-    print_i16((int)(cy * 1000));
-    print_str("  span ");
-    print_i16((int)(sx * 1000));
-    print_str("  +/- zoom  arrows pan  j julia  r reset  q quit");
-    set_cur_col(saved);
+    char buf[96];
+    char* p = buf;
+    p = put_str(p, julia ? "Julia " : "Mandel");
+    p = put_str(p, "  center ");
+    p = put_int(p, clamp6(cx * 1000));
+    *p++ = ',';
+    p = put_int(p, clamp6(cy * 1000));
+    p = put_str(p, "  span ");
+    p = put_int(p, clamp6(sx * 1000));
+    p = put_str(p, "  +/- zoom  arrows pan  j julia  r reset  q quit");
+
+    int len = (int)(p - buf);
+    if (len > 80) len = 80;
+    while (len < 80) buf[len++] = ' ';
+    buf[80] = '\0';
+    o_print_at(0, 24, buf, 0x07);   /* grey on the forced black bar */
 }
 
 static void reset_view(void) {
@@ -98,7 +120,6 @@ static void draw_progressive(void) {
 }
 
 void module_main(void) {
-    bg = 0x00;                      /* screensaver: always black */
     julia = 0;
     jcr = -0.8; jci = 0.156;
     reset_view();
