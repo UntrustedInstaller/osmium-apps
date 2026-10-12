@@ -4,9 +4,8 @@ Optional, loadable applications for [OsmiumOS](https://github.com/UntrustedInsta
 Each app is a single `.BIN` module that the kernel loads at `0x2000` and enters
 via `lcall`, talking to the OS exclusively through the `INT 60h` API.
 
-Keeping apps out of the core repo keeps the kernel lean (the kernel image has a
-hard 78-sector budget) and lets them be dropped onto a floppy image or swapped
-in and out freely.
+All programs here serve as an example of what the API (and OsmiumOS) is capable of, and a perfect  
+demonstration of the drag and drop capabilities of installing applications. 
 
 ## Layout
 
